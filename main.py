@@ -8,14 +8,23 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget
 
 
+MAP_TYPES = {'Схема': 'map', 'Спутник': 'sat', 'Гибрид': 'sat,skl'}
+
+
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         uic.loadUi('main.ui', self)
+        self.comboBox.currentIndexChanged.connect(self.change_type)
         self.lon = 86.088374
         self.lat = 55.354727
         self.zoom = 10
         self.map_file = 'map.png'
+        self.map_type = 'map'
+        self.update_image()
+
+    def change_type(self):
+        self.map_type = MAP_TYPES[self.comboBox.currentText()]
         self.update_image()
 
     def update_image(self):
@@ -29,7 +38,7 @@ class MainWindow(QWidget):
             "ll": ','.join([str(self.lon), str(self.lat)]),
             "size": '450,450',
             "z": str(self.zoom),
-            "l": 'map'
+            "l": self.map_type
         }
         response = requests.get(search_api_server, params=search_params)
 
