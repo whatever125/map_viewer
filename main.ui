@@ -48,7 +48,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>80</y>
+     <y>100</y>
      <width>180</width>
      <height>22</height>
     </rect>
@@ -76,7 +76,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>60</y>
+     <y>80</y>
      <width>81</width>
      <height>16</height>
     </rect>
@@ -90,7 +90,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>140</width>
+     <width>180</width>
      <height>20</height>
     </rect>
    </property>
@@ -105,7 +105,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>40</y>
+     <y>60</y>
      <width>180</width>
      <height>3</height>
     </rect>
@@ -117,9 +117,9 @@
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>10</y>
-     <width>40</width>
+     <x>10</x>
+     <y>35</y>
+     <width>85</width>
      <height>20</height>
     </rect>
    </property>
@@ -141,6 +141,22 @@
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>105</x>
+     <y>35</y>
+     <width>85</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::ClickFocus</enum>
+   </property>
+   <property name="text">
+    <string>Сброс</string>
    </property>
   </widget>
  </widget>

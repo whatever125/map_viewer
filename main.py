@@ -20,6 +20,7 @@ class MainWindow(QWidget):
         uic.loadUi('main.ui', self)
         self.comboBox.currentIndexChanged.connect(self.change_type)
         self.pushButton.clicked.connect(self.find_toponym)
+        self.pushButton_2.clicked.connect(self.delete_toponym)
         self.lon = 86.088374
         self.lat = 55.354727
         self.zoom = 10
@@ -50,11 +51,15 @@ class MainWindow(QWidget):
         except Exception:
             self.label_2.setText('Ничего не нашлось')
 
+    def delete_toponym(self):
+        self.points = []
+        self.update_image()
+
     def change_type(self):
         self.map_type = MAP_TYPES[self.comboBox.currentText()]
         self.update_image()
 
-    def update_image(self): 
+    def update_image(self):
         self.get_image()
         self.pixmap = QPixmap(self.map_file)
         self.image.setPixmap(self.pixmap)
