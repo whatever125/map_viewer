@@ -3,6 +3,7 @@ import sys
 import random
 import requests
 from PyQt5 import uic
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget
 
@@ -39,6 +40,19 @@ class MainWindow(QWidget):
 
         with open(self.map_file, "wb") as file:
             file.write(response.content)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_PageUp or event.key() == Qt.Key_PageDown:
+            if event.key() == Qt.Key_PageUp:
+                self.zoom += 1
+            elif event.key() == Qt.Key_PageDown:
+                self.zoom -= 1
+            if self.zoom > 17:
+                self.zoom = 17
+            if self.zoom < 0:
+                self.zoom = 0
+            self.update_image()
+        event.accept()
 
     def closeEvent(self, event):
         pass
