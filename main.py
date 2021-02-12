@@ -11,6 +11,8 @@ from PyQt5.QtWidgets import QApplication, QWidget
 MAP_TYPES = {'Схема': 'map', 'Спутник': 'sat', 'Гибрид': 'sat,skl'}
 search_api_server = "https://search-maps.yandex.ru/v1/"
 search_api_key = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
+geocode_api_server = 'https://geocode-maps.yandex.ru/1.x/'
+geocode_api_key = '40d1649f-0493-4b70-98ba-98533de7710b'
 static_api_server = "https://static-maps.yandex.ru/1.x/"
 
 
@@ -21,11 +23,13 @@ class MainWindow(QWidget):
         self.comboBox.currentIndexChanged.connect(self.change_type)
         self.pushButton.clicked.connect(self.find_toponym)
         self.pushButton_2.clicked.connect(self.delete_toponym)
+        self.checkBox.clicked.connect(self.show_index)
         self.lon = 86.088374
         self.lat = 55.354727
         self.zoom = 10
         self.map_file = 'map.png'
         self.map_type = 'map'
+        self.index = False
         self.points = []
         self.update_image()
 
@@ -48,7 +52,26 @@ class MainWindow(QWidget):
             address = obj['properties']['description']
             self.lon, self.lat = coordinates
             self.points = [*coordinates, 'round']
-            self.lineEdit_2.setText(address)
+            index = ''
+            if self.index:
+                index_search_params = {
+                    "apikey": geocode_api_key,
+                    "geocode": ','.join(list(map(lambda x: str(x), coordinates))),
+                    "format": "json"
+                }
+                index_response = requests.get(geocode_api_server, params=index_search_params)
+
+                if not index_response:
+                    self.label_2.setText(index_response.status_code, ' ', index_response.reason)
+                    return
+                try:
+                    index_response = index_response.json()
+                    toponym = index_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+                    index = toponym['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
+                except Exception:
+                    self.label_2.setText('Почтовый индекс не найден')
+
+            self.lineEdit_2.setText(address + ', ' + index)
             self.update_image()
         except Exception:
             self.label_2.setText('Ничего не нашлось')
@@ -61,6 +84,9 @@ class MainWindow(QWidget):
     def change_type(self):
         self.map_type = MAP_TYPES[self.comboBox.currentText()]
         self.update_image()
+
+    def show_index(self):
+        self.index = bool(1 - self.index)
 
     def update_image(self):
         self.get_image()
