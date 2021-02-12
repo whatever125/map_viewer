@@ -42,7 +42,7 @@ class MainWindow(QWidget):
             file.write(response.content)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_PageUp or event.key() == Qt.Key_PageDown:
+        if event.key() in [Qt.Key_PageUp, Qt.Key_PageDown]:
             if event.key() == Qt.Key_PageUp:
                 self.zoom += 1
             elif event.key() == Qt.Key_PageDown:
@@ -51,7 +51,25 @@ class MainWindow(QWidget):
                 self.zoom = 17
             if self.zoom < 0:
                 self.zoom = 0
-            self.update_image()
+        if event.key() in [Qt.Key_Up, Qt.Key_Down]:
+            if event.key() == Qt.Key_Up:
+                self.lat += 350 / 2 ** self.zoom
+            elif event.key() == Qt.Key_Down:
+                self.lat -= 350 / 2 ** self.zoom
+            if self.lat > 85:
+                self.lat = 85
+            elif self.lat < -85:
+                self.lat = -85
+        if event.key() in [Qt.Key_Left, Qt.Key_Right]:
+            if event.key() == Qt.Key_Left:
+                self.lon -= 600 / 2 ** self.zoom
+            elif event.key() == Qt.Key_Right:
+                self.lon += 600 / 2 ** self.zoom
+            if self.lon > 180:
+                self.lon = 180
+            elif self.lon < -180:
+                self.lon = -180
+        self.update_image()
         event.accept()
 
     def closeEvent(self, event):
