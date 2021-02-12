@@ -54,7 +54,7 @@ class MainWindow(QWidget):
         self.map_type = MAP_TYPES[self.comboBox.currentText()]
         self.update_image()
 
-    def update_image(self):
+    def update_image(self): 
         self.get_image()
         self.pixmap = QPixmap(self.map_file)
         self.image.setPixmap(self.pixmap)
