@@ -45,14 +45,17 @@ class MainWindow(QWidget):
             response = response.json()
             obj = response['features'][0]
             coordinates = obj['geometry']['coordinates']
+            address = obj['properties']['description']
             self.lon, self.lat = coordinates
             self.points = [*coordinates, 'round']
+            self.lineEdit_2.setText(address)
             self.update_image()
         except Exception:
             self.label_2.setText('Ничего не нашлось')
 
     def delete_toponym(self):
         self.points = []
+        self.lineEdit_2.setText('')
         self.update_image()
 
     def change_type(self):

@@ -48,7 +48,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>100</y>
+     <y>135</y>
      <width>180</width>
      <height>22</height>
     </rect>
@@ -76,7 +76,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>80</y>
+     <y>115</y>
      <width>81</width>
      <height>16</height>
     </rect>
@@ -105,7 +105,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>60</y>
+     <y>95</y>
      <width>180</width>
      <height>3</height>
     </rect>
@@ -118,7 +118,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>35</y>
+     <y>70</y>
      <width>85</width>
      <height>20</height>
     </rect>
@@ -147,7 +147,7 @@
    <property name="geometry">
     <rect>
      <x>105</x>
-     <y>35</y>
+     <y>70</y>
      <width>85</width>
      <height>20</height>
     </rect>
@@ -157,6 +157,25 @@
    </property>
    <property name="text">
     <string>Сброс</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>40</y>
+     <width>180</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+   <property name="placeholderText">
+    <string>Найденный адрес</string>
    </property>
   </widget>
  </widget>
