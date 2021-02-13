@@ -30,6 +30,7 @@ class MainWindow(QWidget):
         self.map_file = 'map.png'
         self.map_type = 'map'
         self.index = False
+        self.found_index = False
         self.points = []
         self.update_image()
 
@@ -70,8 +71,14 @@ class MainWindow(QWidget):
                     index = toponym['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
                 except Exception:
                     self.label_2.setText('Почтовый индекс не найден')
-
-            self.lineEdit_2.setText(address + ', ' + index)
+                    self.found_index = False
+                else:
+                    self.label_2.setText('')
+                    self.found_index = True
+            if index:
+                self.lineEdit_2.setText(address + ', ' + index)
+            else:
+                self.lineEdit_2.setText(address)
             self.update_image()
         except Exception:
             self.label_2.setText('Ничего не нашлось')
@@ -87,6 +94,34 @@ class MainWindow(QWidget):
 
     def show_index(self):
         self.index = bool(1 - self.index)
+        if self.index:
+            index_search_params = {
+                "apikey": geocode_api_key,
+                "geocode": ','.join([str(self.lon), str(self.lat)]),
+                "format": "json"
+            }
+            index_response = requests.get(geocode_api_server, params=index_search_params)
+
+            if not index_response:
+                self.label_2.setText(index_response.status_code, ' ', index_response.reason)
+                return
+            try:
+                index_response = index_response.json()
+                toponym = index_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+                index = toponym['metaDataProperty']['GeocoderMetaData']['Address']['postal_code']
+                self.lineEdit_2.setText(self.lineEdit_2.text() + ', ' + index)
+            except Exception:
+                self.label_2.setText('Почтовый индекс не найден')
+                self.found_index = False
+            else:
+                self.label_2.setText('')
+                self.found_index = True
+        else:
+            self.label_2.setText('')
+            if self.found_index:
+                self.lineEdit_2.setText(','.join(self.lineEdit_2.text().split(',')[:-1]))
+            else:
+                pass
 
     def update_image(self):
         self.get_image()
