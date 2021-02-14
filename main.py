@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 import random
 import requests
 from PyQt5 import uic
@@ -22,7 +23,7 @@ class MainWindow(QWidget):
         uic.loadUi('main.ui', self)
         self.comboBox.currentIndexChanged.connect(self.change_type)
         self.pushButton.clicked.connect(self.find_toponym)
-        self.pushButton_2.clicked.connect(self.delete_toponym)
+        self.pushButton_2.clicked.connect(self.clear)
         self.checkBox.clicked.connect(self.show_index)
         self.lon = 86.088374
         self.lat = 55.354727
@@ -81,7 +82,6 @@ class MainWindow(QWidget):
             return
         try:
             response = response.json()
-            print(response)
             obj = response['features'][0]
             description = obj['properties']['GeocoderMetaData']['text']
             self.points = [lon, lat, 'comma']
@@ -96,7 +96,55 @@ class MainWindow(QWidget):
         except Exception:
             self.label_2.setText('Ничего не нашлось')
 
-    def delete_toponym(self):
+    def find_org(self, lon, lat):
+        search_params = {
+            'apikey': geocode_api_key,
+            'format': 'json',
+            'geocode': f'{lon},{lat}'
+        }
+        geo_response = requests.get(geocode_api_server, params=search_params)
+
+        if not geo_response:
+            self.label_2.setText(geo_response.status_code, ' ', geo_response.reason)
+            return
+        try:
+            geo_response = geo_response.json()
+            obj = geo_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
+            address = obj['metaDataProperty']['GeocoderMetaData']['text']
+            search_params = {
+                "apikey": search_api_key,
+                "text": address,
+                "lang": "ru_RU",
+                "type": "biz"
+            }
+            search_response = requests.get(search_api_server, params=search_params)
+
+            if not search_response:
+                self.label_2.setText(search_response.status_code, ' ', search_response.reason)
+                return
+            try:
+                search_response = search_response.json()
+                organization = search_response["features"][0]
+                lon1, lat1 = organization["geometry"]["coordinates"]
+                if self.measure(float(lat), float(lon), lat1, lon1) <= 50:
+                    self.lineEdit.setText(organization['properties']['name'])
+                    self.lineEdit_2.setText(organization['properties']['description'])
+                    if self.index:
+                        self.lineEdit_2.setText(self.lineEdit_2.text() + ', ' +
+                                            self.find_index([str(lon1), str(lat1)]))
+                    self.label_2.setText('')
+                    self.lon = lon1
+                    self.lat = lat1
+                    self.points = [str(lon1), str(lat1), 'comma']
+                    self.update_image()
+                else:
+                    self.label_2.setText('Ничего не нашлось')
+            except Exception:
+                self.label_2.setText('Ничего не нашлось')
+        except Exception:
+            self.label_2.setText('Ничего не нашлось')
+
+    def clear(self):
         self.points = []
         self.lineEdit.setText('')
         self.lineEdit_2.setText('')
@@ -179,6 +227,28 @@ class MainWindow(QWidget):
                 string += ','
         return string[:-1]
 
+    def measure(self, llat1, llong1, llat2, llong2):
+        rad = 6371008
+
+        lat1 = llat1 * math.pi / 180
+        lat2 = llat2 * math.pi / 180
+        long1 = llong1 * math.pi / 180
+        long2 = llong2 * math.pi / 180
+
+        cl1 = math.cos(lat1)
+        cl2 = math.cos(lat2)
+        sl1 = math.sin(lat1)
+        sl2 = math.sin(lat2)
+        delta = long2 - long1
+        cdelta = math.cos(delta)
+        sdelta = math.sin(delta)
+
+        y = math.sqrt(math.pow(cl2 * sdelta, 2) + math.pow(cl1 * sl2 - sl1 * cl2 * cdelta, 2))
+        x = sl1 * sl2 + cl1 * cl2 * cdelta
+        ad = math.atan2(y, x)
+        dist = ad * rad
+        return dist
+
     def keyPressEvent(self, event):
         if event.key() in [Qt.Key_PageUp, Qt.Key_PageDown]:
             if event.key() == Qt.Key_PageUp:
@@ -220,6 +290,15 @@ class MainWindow(QWidget):
                 lon, lat = round(self.lon + x * x_k, 6), round(self.lat + y * y_k, 6)
                 self.clicked = True
                 self.find_toponym_on_click(str(lon), str(lat))
+        if event.button() == Qt.RightButton:
+            x, y = event.x() - 200, event.y()
+            if 0 <= x <= 450 and 0 <= y <= 450:
+                x_k = (422.4 / (2 ** (self.zoom - 1))) / 600
+                y_k = (178.25792 / (2 ** (self.zoom - 1))) / 450
+                x, y = x - 225, 225 - y
+                lon, lat = round(self.lon + x * x_k, 6), round(self.lat + y * y_k, 6)
+                self.clear()
+                self.find_org(str(lon), str(lat))
 
     def closeEvent(self, event):
         pass
